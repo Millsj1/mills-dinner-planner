@@ -1,0 +1,190 @@
+.week-view {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.meal-section { }
+
+.section-header {
+  display: flex;
+  align-items: baseline;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid var(--border);
+  padding-bottom: 0.5rem;
+}
+
+.section-title {
+  font-family: 'Playfair Display', serif;
+  font-size: 20px;
+  font-weight: 700;
+  color: var(--ink);
+}
+
+.section-badge {
+  font-size: 12px;
+  color: var(--ink-muted);
+  background: var(--cream);
+  border: 1px solid var(--border);
+  padding: 2px 10px;
+  border-radius: 999px;
+}
+
+.section-badge.weekend {
+  background: var(--copper-pale);
+  color: var(--copper);
+  border-color: transparent;
+}
+
+.meal-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.6rem;
+}
+
+.meal-card {
+  display: flex;
+  align-items: stretch;
+  background: var(--warm-white);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  overflow: hidden;
+  transition: all 0.15s;
+}
+
+.meal-card:hover {
+  border-color: var(--border-strong);
+  box-shadow: var(--shadow);
+}
+
+.meal-card.cooked {
+  opacity: 0.6;
+  background: var(--cream);
+}
+
+.meal-card.cooked .meal-title {
+  text-decoration: line-through;
+  color: var(--ink-muted);
+}
+
+.cooked-check {
+  width: 44px;
+  min-width: 44px;
+  background: var(--cream);
+  border: none;
+  border-right: 1px solid var(--border);
+  font-size: 16px;
+  color: var(--sage);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+.cooked-check:hover {
+  background: var(--sage-pale);
+}
+
+.meal-card.cooked .cooked-check {
+  background: var(--sage-pale);
+}
+
+.meal-card-body {
+  flex: 1;
+  padding: 0.9rem 1.1rem;
+  cursor: pointer;
+}
+
+.meal-card-top { }
+
+.meal-day-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 4px;
+}
+
+.meal-day {
+  font-size: 12px;
+  font-weight: 500;
+  color: var(--copper);
+  text-transform: uppercase;
+  letter-spacing: 0.8px;
+}
+
+.meal-cuisine {
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.meal-title {
+  font-size: 16px;
+  font-weight: 500;
+  color: var(--ink);
+  line-height: 1.3;
+  margin-bottom: 4px;
+}
+
+.meal-notes-preview {
+  font-size: 13px;
+  color: var(--ink-muted);
+  line-height: 1.5;
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  margin-bottom: 8px;
+}
+
+.meal-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+}
+
+.meal-tags {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.meal-tag {
+  font-size: 11px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+.meal-time {
+  font-size: 12px;
+  color: var(--ink-muted);
+}
+
+.stars-display {
+  display: flex;
+  gap: 1px;
+}
+
+.star {
+  font-size: 13px;
+  color: var(--border-strong);
+}
+
+.star.filled {
+  color: var(--gold);
+}
+
+.meal-has-notes {
+  font-size: 11px;
+  color: var(--ink-muted);
+  margin-top: 6px;
+}
+
+@media (max-width: 600px) {
+  .meal-card-body { padding: 0.75rem 0.9rem; }
+  .meal-title { font-size: 15px; }
+}
