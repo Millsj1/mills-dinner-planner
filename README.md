@@ -1,47 +1,77 @@
 # Mills Dinner Planner
 
-A shared dinner rotation app for Jim & Shannon. 2-week meal plan with shopping lists, notes, ratings, and cook tracking.
+A shared 2-week dinner rotation app for the Mills family. Picks meals from a recipe library, tracks ratings + notes, and rolls a fresh plan every two weeks weighted by what you actually liked.
 
-## Deploy to Vercel via GitHub
+**Stack:** React + Vite · Supabase (auth + Postgres) · Vercel
 
-### Step 1 — Push to GitHub
+## How rotation works
 
-```bash
-cd dinner-planner
-git init
-git add .
-git commit -m "Initial dinner planner"
-```
+- **Library:** ~33 meals across American, Mexican, Italian, Asian, Mediterranean, BBQ.
+- **Plan:** 7 meals per week × 2 weeks = 14 picks (5 weeknight + 2 weekend per week).
+- **Weighting:**
+  - 5★ → strongly favored
+  - 4★ → likely
+  - 3★ → fair shot
+  - 0★ (unrated) → solid chance — gives unfamiliar meals exposure
+  - 2★ → rare · 1★ → almost never
+- **Recency penalty:** if a meal was cooked in the last 21 days, its weight drops to 15%.
+- **Variety:** no more than 2 meals from the same cuisine per week.
+- **Auto-rotate:** when the current plan is 14+ days old the app generates a new one on next load. ↺ button regenerates manually; ⌫ wipes history.
 
-Go to https://github.com/new and create a new repo called `mills-dinner-planner` (private).
+When a plan is replaced, ratings + notes are appended to `meal_history`, which feeds the weighting for all future plans.
 
-```bash
-git remote add origin https://github.com/YOUR_USERNAME/mills-dinner-planner.git
-git branch -M main
-git push -u origin main
-```
+## Multi-user
 
-### Step 2 — Deploy on Vercel
+The app uses Supabase auth + Postgres so Jim, Shannon, and others all see the same plan. Members invite new users from the **Members** tab — owner enters name + email + role, gets a shareable invite URL, recipient signs in with the matching email and is added automatically.
 
-1. Go to https://vercel.com/new
-2. Click **Import Git Repository**
-3. Select `mills-dinner-planner`
-4. Framework: **Vite** (auto-detected)
-5. Click **Deploy**
+Roles:
+- **Owner** — full access + manage members
+- **Member** — full access (edit plan, rate, take notes)
+- **Viewer** — read-only
 
-Done! Vercel gives you a URL like `mills-dinner-planner.vercel.app` — share it with Shannon.
+## Setup
 
-### Step 3 — Share with Shannon
+See `DEPLOYMENT.md` for the step-by-step provision-and-deploy guide.
 
-Send Shannon the Vercel URL. The app works on any device — phone, tablet, desktop.
-
-Data is stored in each browser's localStorage, so Jim and Shannon each have their own local copy of notes and check-offs. (For shared sync across devices, a future upgrade could add a database.)
-
-## Local Development
+## Local development
 
 ```bash
+cp .env.example .env.local   # fill with your Supabase keys
 npm install
-npm run dev
+npm run dev   # http://localhost:5173
 ```
 
-Open http://localhost:5173
+## Project structure
+
+```
+src/
+├── App.jsx                 # Routes auth → planner; gates on membership
+├── LoginPage.jsx           # Magic link + Google OAuth
+├── data.js                 # RECIPE_LIBRARY seed (also used as fallback)
+├── rotation.js             # Weighted-rotation engine
+├── lib/supabase.js         # Supabase client init
+├── hooks/
+│   ├── useAuth.jsx         # Session + household membership context
+│   ├── usePlan.js          # Loads/mutates plan, history, recipes from DB
+│   └── useAcceptInvite.js  # Claims a ?invite=TOKEN on first sign-in
+├── pages/Members.jsx       # Members + invitations management
+└── components/
+    ├── Header.jsx          # Nav, regenerate, sign out
+    ├── WeekView.jsx        # Per-week meal cards
+    ├── MealModal.jsx       # Edit rating + notes
+    └── ShoppingList.jsx    # Auto-derived from current plan
+
+supabase/migrations/
+├── 001_initial_schema.sql  # Tables, RLS, accept_invitation() RPC
+└── 002_seed_recipes.sql    # ~33 recipes (global, household_id NULL)
+```
+
+## Deploying changes
+
+```bash
+git add .
+git commit -m "Description"
+git push           # Vercel auto-deploys from main
+```
+
+If you add a SQL migration, run it manually in Supabase SQL Editor before pushing.

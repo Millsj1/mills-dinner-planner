@@ -1,6 +1,21 @@
 import './Header.css'
 
-export default function Header({ view, setView, activeWeek, setActiveWeek, cookedCount, total, onReset }) {
+function formatPlanAge(generatedAt) {
+  if (!generatedAt) return ''
+  const start = new Date(generatedAt)
+  const end = new Date(start.getTime() + 14 * 24 * 60 * 60 * 1000)
+  const fmt = d => d.toLocaleDateString(undefined, { month: 'short', day: 'numeric' })
+  return `${fmt(start)} – ${fmt(end)}`
+}
+
+export default function Header({
+  view, setView,
+  activeWeek, setActiveWeek,
+  cookedCount, total,
+  onRegenerate, onClearHistory, onSignOut,
+  planGeneratedAt,
+  householdName,
+}) {
   return (
     <header className="header">
       <div className="header-inner">
@@ -8,7 +23,10 @@ export default function Header({ view, setView, activeWeek, setActiveWeek, cooke
           <span className="header-logo">🍽</span>
           <div>
             <h1 className="header-title">Mills Dinner Planner</h1>
-            <p className="header-sub">Jim & Shannon · 2-week rotation</p>
+            <p className="header-sub">
+              {householdName || 'Mills Family'} · 2-week rotation
+              {planGeneratedAt && <> · <span title="Plan window">{formatPlanAge(planGeneratedAt)}</span></>}
+            </p>
           </div>
         </div>
 
@@ -29,6 +47,10 @@ export default function Header({ view, setView, activeWeek, setActiveWeek, cooke
               className={`nav-tab ${view === 'shopping' ? 'active' : ''}`}
               onClick={() => setView('shopping')}
             >Shopping</button>
+            <button
+              className={`nav-tab ${view === 'members' ? 'active' : ''}`}
+              onClick={() => setView('members')}
+            >Members</button>
           </nav>
 
           {view === 'planner' && (
@@ -44,7 +66,25 @@ export default function Header({ view, setView, activeWeek, setActiveWeek, cooke
             </div>
           )}
 
-          <button className="reset-btn" onClick={onReset} title="Reset plan">↺</button>
+          <button
+            className="reset-btn"
+            onClick={onRegenerate}
+            title="Generate fresh 2-week plan now"
+          >↺</button>
+          <button
+            className="reset-btn"
+            onClick={onClearHistory}
+            title="Clear rating history (resets weighting)"
+            style={{ fontSize: 13 }}
+          >⌫</button>
+          {onSignOut && (
+            <button
+              className="reset-btn"
+              onClick={onSignOut}
+              title="Sign out"
+              style={{ fontSize: 13 }}
+            >⏻</button>
+          )}
         </div>
       </div>
     </header>

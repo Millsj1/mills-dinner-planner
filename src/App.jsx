@@ -1,64 +1,102 @@
-import { useState, useEffect } from 'react'
-import { INITIAL_PLAN } from './data.js'
+import { useState } from 'react'
+import { useAuth } from './hooks/useAuth.jsx'
+import { useAcceptInvite } from './hooks/useAcceptInvite'
+import { usePlan } from './hooks/usePlan'
+import LoginPage from './LoginPage.jsx'
 import WeekView from './components/WeekView.jsx'
 import MealModal from './components/MealModal.jsx'
 import ShoppingList from './components/ShoppingList.jsx'
 import Header from './components/Header.jsx'
+import Members from './pages/Members.jsx'
 import './App.css'
 
-const STORAGE_KEY = 'mills-dinner-plan-v1'
+export default function App() {
+  const { session, member, household, loading: authLoading, signOut } = useAuth()
+  const inviteState = useAcceptInvite()
 
-function loadPlan() {
-  try {
-    const saved = localStorage.getItem(STORAGE_KEY)
-    if (saved) return JSON.parse(saved)
-  } catch (e) {}
-  return { week1: [...INITIAL_PLAN.week1], week2: [...INITIAL_PLAN.week2] }
+  if (authLoading) {
+    return <div className="app-loading">Loading…</div>
+  }
+
+  if (!session) {
+    return <LoginPage />
+  }
+
+  if (!member) {
+    // Signed in but not a household member yet (no invite, or invite failed).
+    return (
+      <div className="app-loading" style={{ flexDirection: 'column', gap: 12, padding: 24, textAlign: 'center' }}>
+        <h2 style={{ fontFamily: "'Playfair Display', serif" }}>You're signed in</h2>
+        {inviteState.status === 'claiming' && <p>Joining household…</p>}
+        {inviteState.status === 'error' && <p style={{ color: '#B91C1C' }}>{inviteState.message}</p>}
+        {inviteState.status !== 'claiming' && (
+          <p style={{ maxWidth: 360, color: '#6b6b6b' }}>
+            Your account isn't part of a household yet. Ask Jim or Shannon to send you an invitation link.
+          </p>
+        )}
+        <button
+          onClick={signOut}
+          style={{
+            marginTop: 16, padding: '8px 16px', borderRadius: 8,
+            border: '1px solid #d8d6d0', background: 'transparent', cursor: 'pointer',
+          }}
+        >
+          Sign out
+        </button>
+      </div>
+    )
+  }
+
+  return <DinnerPlanner household={household} signOut={signOut} />
 }
 
-export default function App() {
-  const [plan, setPlan] = useState(loadPlan)
-  const [activeWeek, setActiveWeek] = useState(1)
-  const [view, setView] = useState('planner') // 'planner' | 'shopping'
+function DinnerPlanner({ household, signOut }) {
+  const { plan, loading, error, updateMeal, toggleCooked, rotate, clearHistory } = usePlan()
+  const [activeWeek, setActiveWeek]     = useState(1)
+  const [view, setView]                 = useState('planner') // 'planner' | 'shopping' | 'members'
   const [selectedMeal, setSelectedMeal] = useState(null)
-  const [toast, setToast] = useState(null)
-
-  useEffect(() => {
-    try { localStorage.setItem(STORAGE_KEY, JSON.stringify(plan)) } catch (e) {}
-  }, [plan])
+  const [toast, setToast]               = useState(null)
 
   function showToast(msg) {
     setToast(msg)
     setTimeout(() => setToast(null), 2500)
   }
 
-  function updateMeal(updatedMeal) {
-    setPlan(prev => {
-      const key = `week${updatedMeal.week}`
-      return {
-        ...prev,
-        [key]: prev[key].map(m => m.id === updatedMeal.id ? updatedMeal : m)
-      }
-    })
-    setSelectedMeal(updatedMeal)
-    showToast('Saved!')
-  }
-
-  function toggleCooked(mealId, week) {
-    const key = `week${week}`
-    setPlan(prev => ({
-      ...prev,
-      [key]: prev[key].map(m =>
-        m.id === mealId ? { ...m, cooked: !m.cooked } : m
-      )
-    }))
-  }
-
-  function resetPlan() {
-    if (window.confirm('Reset to original plan? All ratings and notes will be cleared.')) {
-      setPlan({ week1: [...INITIAL_PLAN.week1], week2: [...INITIAL_PLAN.week2] })
-      showToast('Plan reset!')
+  async function handleSave(updatedMeal) {
+    try {
+      await updateMeal(updatedMeal)
+      setSelectedMeal(updatedMeal)
+      showToast('Saved!')
+    } catch (e) {
+      showToast('Save failed: ' + e.message)
     }
+  }
+
+  async function handleRegenerate() {
+    if (!window.confirm('Generate a brand-new 2-week plan? Current ratings & notes are saved to history.')) return
+    try {
+      await rotate()
+      showToast('New 2-week plan generated')
+    } catch (e) {
+      showToast('Failed: ' + e.message)
+    }
+  }
+
+  async function handleClearHistory() {
+    if (!window.confirm('Clear all rating history? Resets rotation weighting.')) return
+    try {
+      await clearHistory()
+      showToast('History cleared')
+    } catch (e) {
+      showToast('Failed: ' + e.message)
+    }
+  }
+
+  if (loading || !plan) {
+    return <div className="app-loading">Loading plan…</div>
+  }
+  if (error) {
+    return <div className="app-loading" style={{ color: '#B91C1C' }}>Error: {error}</div>
   }
 
   const allMeals = [...plan.week1, ...plan.week2]
@@ -73,7 +111,11 @@ export default function App() {
         setActiveWeek={setActiveWeek}
         cookedCount={cookedCount}
         total={allMeals.length}
-        onReset={resetPlan}
+        onRegenerate={handleRegenerate}
+        onClearHistory={handleClearHistory}
+        onSignOut={signOut}
+        planGeneratedAt={plan.generatedAt}
+        householdName={household?.name}
       />
 
       <main className="main">
@@ -88,13 +130,16 @@ export default function App() {
         {view === 'shopping' && (
           <ShoppingList plan={plan} activeWeek={activeWeek} />
         )}
+        {view === 'members' && (
+          <Members onClose={() => setView('planner')} />
+        )}
       </main>
 
       {selectedMeal && (
         <MealModal
           meal={selectedMeal}
           onClose={() => setSelectedMeal(null)}
-          onSave={updateMeal}
+          onSave={handleSave}
         />
       )}
 

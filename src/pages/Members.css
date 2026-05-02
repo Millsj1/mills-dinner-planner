@@ -1,0 +1,182 @@
+.members-page {
+  max-width: 680px;
+}
+
+.members-loading {
+  padding: 2rem;
+  text-align: center;
+  color: var(--ink-muted);
+}
+
+.members-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.members-header h2 {
+  font-family: 'Playfair Display', serif;
+  font-size: 22px;
+  font-weight: 700;
+}
+
+.members-close {
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  width: 32px;
+  height: 32px;
+  font-size: 14px;
+  color: var(--ink-muted);
+  cursor: pointer;
+}
+
+.members-section {
+  background: var(--warm-white, #fff);
+  border: 1px solid var(--border, #e0ddd5);
+  border-radius: 14px;
+  padding: 1rem 1.25rem 1.25rem;
+  margin-bottom: 1.25rem;
+}
+
+.members-section-title {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--ink-soft);
+  margin-bottom: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.members-list {
+  list-style: none;
+  padding: 0;
+}
+
+.member-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.6rem 0;
+  border-bottom: 1px solid var(--border-tertiary, #f0eeea);
+  gap: 1rem;
+}
+
+.member-row:last-child {
+  border-bottom: none;
+}
+
+.member-name {
+  font-size: 15px;
+  font-weight: 500;
+  color: var(--ink);
+}
+
+.member-email {
+  font-size: 12px;
+  color: var(--ink-muted);
+  margin-top: 2px;
+}
+
+.member-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.member-role {
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  padding: 3px 10px;
+  border-radius: 999px;
+  font-weight: 500;
+}
+
+.role-owner   { background: #FAEEDA; color: #8B6914; }
+.role-member  { background: #E4EDE5; color: #3D6B42; }
+.role-viewer  { background: #F0EFEb; color: #6B6B6B; }
+
+.member-role-select {
+  font-size: 12px;
+  padding: 5px 8px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: #fff;
+}
+
+.member-remove {
+  background: transparent;
+  border: 1px solid var(--border);
+  font-size: 12px;
+  color: #B91C1C;
+  padding: 5px 10px;
+  border-radius: 6px;
+  cursor: pointer;
+}
+
+.invite-pending {
+  font-size: 10px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: var(--gold-pale, #F7F0DC);
+  color: #8B6914;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: 6px;
+  font-weight: 500;
+}
+
+.invite-copy {
+  background: var(--copper, #B85C38);
+  color: #fff;
+  border: none;
+  font-size: 12px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 500;
+}
+
+.invite-form {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.invite-form input,
+.invite-form select {
+  padding: 9px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--border);
+  font-size: 14px;
+  background: var(--cream, #f5f4f1);
+}
+
+.invite-submit {
+  background: var(--copper, #B85C38);
+  color: #fff;
+  border: none;
+  padding: 10px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.invite-submit:disabled {
+  opacity: 0.6;
+}
+
+.invite-error {
+  color: #B91C1C;
+  font-size: 13px;
+}
+
+.invite-help {
+  font-size: 12px;
+  color: var(--ink-muted);
+  line-height: 1.5;
+  margin-top: 4px;
+}

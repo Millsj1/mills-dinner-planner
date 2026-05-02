@@ -145,6 +145,17 @@
   font-size: 14px;
   color: var(--ink-soft);
   line-height: 1.4;
+  flex: 1;
+}
+
+.shop-item-count {
+  font-size: 11px;
+  color: var(--ink-muted);
+  background: var(--cream);
+  border: 1px solid var(--border);
+  padding: 1px 6px;
+  border-radius: 999px;
+  flex-shrink: 0;
 }
 
 .shop-note {
