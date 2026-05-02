@@ -20,9 +20,25 @@ export default function LoginPage() {
     e.preventDefault()
     if (!email.trim()) return
     setLoading(true); setError('')
-    const { error } = await signInWithEmail(email.trim())
-    if (error) setError(error.message)
-    else setSent(true)
+    try {
+      const { error } = await signInWithEmail(email.trim())
+      if (error) setError(error.message)
+      else setSent(true)
+    } catch (e) {
+      // Browser fetch failures (e.g. wrong Supabase URL, no network) surface
+      // here as TypeError "Load failed" / "Failed to fetch". Translate to
+      // something actionable.
+      const raw = e?.message || String(e)
+      if (/load failed|failed to fetch|networkerror/i.test(raw)) {
+        setError(
+          "Can't reach Supabase. Check that VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY " +
+          "are set, the dev server has been restarted since editing .env.local, and that " +
+          `${window.location.origin} is in Supabase Auth → URL Configuration → Redirect URLs.`
+        )
+      } else {
+        setError(raw)
+      }
+    }
     setLoading(false)
   }
 
